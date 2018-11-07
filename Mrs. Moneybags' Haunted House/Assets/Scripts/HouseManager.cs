@@ -19,10 +19,9 @@ public class HouseManager : MonoBehaviour {
 	private int currentHouseRating = 0;
 	private int currentHouseCost = 0;
 
-	void Start () {
+	void Awake () {
 		maxHouseSizeText.text = "Max Size: " + maxHouseSize.ToString();
 		ClearToggles();
-		ShowRooms ();
 	}
 
 
@@ -56,15 +55,7 @@ public class HouseManager : MonoBehaviour {
 	{
 		for (int i = 0; i < rooms.Length; i++) 
 		{
-			roomToggles [i].GetComponentInChildren<Text>().text = rooms[i].roomName;
-		}
-	}
-
-    private void ShowRooms()
-	{
-		for (int i = 0; i < rooms.Length; i++) 
-		{
-			roomToggles [i].GetComponentInChildren<Text>().text = rooms[i].roomName;
+			roomToggles [i].GetComponentInChildren<Toggle>().isOn = false;
 		}
 	}
 
