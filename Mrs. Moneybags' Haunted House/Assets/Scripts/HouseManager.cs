@@ -24,10 +24,23 @@ public class HouseManager : MonoBehaviour {
 		ClearToggles();
 	}
 
+	public int getHouseSize()
+	{
+		return currentHouseSize;
+	}
+
+	public void setHouseSize(int newSize)
+	{
+		if (newSize > 0)
+		{
+			currentHouseSize = newSize;
+		}
+	}
 
 	public void SaveButtonPressed()
 	{
 		UpdateCurrentSize ();
+		UpdateCurrentRating(GameManager.instance.ReadCurrentRooms());
 	}
 
     public void Size1ButtonPressed()
@@ -59,6 +72,19 @@ public class HouseManager : MonoBehaviour {
 		}
 	}
 
+	private void UpdateCurrentRooms()
+	{
+        GameManager.instance.ClearRooms();
+        for (int i = 0; i < rooms.Length; i++)
+        {
+        	if (roomToggles[i].isOn)
+        	{
+        		GameManager.instance.AddRooms(rooms[i]);
+        	}
+        }
+
+	}
+
 	private void UpdateCurrentSize()
 	{
         GameManager.instance.ClearRooms();
@@ -72,11 +98,8 @@ public class HouseManager : MonoBehaviour {
 			{
 				currentHouseSize += rooms[i].roomSize;
 				currentHouseRating += rooms[i].roomRating;
-				currentHouseCost += rooms[i].roomPrice;
                 GameManager.instance.AddRooms(rooms[i]);
                 numRooms++;
-				Debug.Log("Toggled Location: " + i);
-				Debug.Log("Current House Size: " + currentHouseSize);
 			}
 		}
 		if (currentHouseSize > maxHouseSize) 
@@ -95,5 +118,14 @@ public class HouseManager : MonoBehaviour {
     	}
         GameManager.instance.SetHouseRating(currentHouseRating);
 		GameManager.instance.SetHouseCost(currentHouseCost);
+	}
+
+	private void UpdateCurrentRating(List<Room> roomsInHouse)
+	{
+		currentHouseRating = 0;
+		for (int i = 0; i < roomsInHouse.Count; i++)
+		{
+			currentHouseRating += roomsInHouse[i].roomRating;
+		}
 	}
 }

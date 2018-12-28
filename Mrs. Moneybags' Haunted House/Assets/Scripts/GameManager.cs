@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour {
 
 		DontDestroyOnLoad(gameObject);
 
-        houseManager = GetComponent<HouseManager>();
+        houseManager = new HouseManager();//GetComponent<HouseManager>();
 
 		currentRooms = new List<Room>();
         size1RoomsToActivate = new List<Room>();
@@ -95,6 +95,11 @@ public class GameManager : MonoBehaviour {
 		instructionText.enabled = true;
 		instructionText.text = value;
 	}
+
+    public List<Room> ReadCurrentRooms()
+    {
+        return currentRooms;
+    }
 
     public void AddRooms(Room room)
     {
