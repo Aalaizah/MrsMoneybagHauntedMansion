@@ -17,7 +17,6 @@ public class GameManager : MonoBehaviour {
 
 	private int houseRating = 0;
 	private int currentMoney = 0;
-	private int seasonLength = 60;
 	private int houseCost = 0;
     private List<Room> currentRooms;
     private int numSize1Active;
@@ -29,8 +28,6 @@ public class GameManager : MonoBehaviour {
     private List<Room> size1RoomsToActivate;
     private List<Room> size2RoomsToActivate;
     private List<Room> size3RoomsToActivate;
-
-    private HouseManager houseManager;
 
     void Awake()
 	{
@@ -44,8 +41,6 @@ public class GameManager : MonoBehaviour {
 		}
 
 		DontDestroyOnLoad(gameObject);
-
-        houseManager = new HouseManager();//GetComponent<HouseManager>();
 
 		currentRooms = new List<Room>();
         size1RoomsToActivate = new List<Room>();
@@ -61,17 +56,12 @@ public class GameManager : MonoBehaviour {
 		currentMoneyText.text = "$" + currentMoney.ToString();
 		houseRatingText.text = "Haunted House Rating: " + houseRating.ToString();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	public void PlaySeasonButtonPressed()
 	{
+        Debug.Log("Play Day Button Pressed");
         currentMoney += CalculateMoneyMade();
 		currentMoneyText.text = "$" + currentMoney.ToString();
-		SetInstructionText("Don't forget to update your house between seasons");
 	}
 
 	public void SetHouseRating(int value)
@@ -184,7 +174,7 @@ public class GameManager : MonoBehaviour {
 
     public int CalculateMoneyMade()
     {
-        int moneyMade = houseRating * seasonLength - houseCost;
+        int moneyMade = houseRating - houseCost;
         return moneyMade;
     }
 }

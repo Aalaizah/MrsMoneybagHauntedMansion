@@ -9,5 +9,5 @@ public class Employee : ScriptableObject {
     public int employeePrice;
     public int employeeRating;
     public Sprite employeeImage;
-
+    public Room favoriteRoom;
 }

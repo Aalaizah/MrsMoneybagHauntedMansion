@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class Room : ScriptableObject {
     public string roomName;
     public int roomSize;
-    public int roomPrice;
     public int roomRating;
     public Sprite roomImage;
 }

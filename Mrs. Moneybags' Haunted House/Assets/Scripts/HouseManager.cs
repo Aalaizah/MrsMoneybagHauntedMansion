@@ -3,25 +3,61 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HouseManager : MonoBehaviour {
+public class HouseManager {
+	private List<Room> allRooms;
+	private List<Room> roomsInUse;
 
-    [SerializeField] private GameObject size1RoomsPanel;
-    [SerializeField] private GameObject size2RoomsPanel;
-    [SerializeField] private GameObject size3RoomsPanel;
+	public HouseManager(List<Room> rooms)
+	{
+		allRooms = rooms;
+		roomsInUse = new List<Room>();
+	}
+
+	public void AddRoom(Room roomToAdd)
+	{
+		if(!roomsInUse.Contains(roomToAdd))
+		{
+			roomsInUse.Add(roomToAdd);
+		}
+		else
+		{
+			Debug.Log("Room already in list");
+		}
+	}
+
+	public void RemoveRoome(Room roomToRemove)
+	{
+		if(roomsInUse.Contains(roomToRemove))
+		{
+			roomsInUse.Remove(roomToRemove);
+		}
+		else
+		{
+			Debug.Log("Room not in list");
+		}
+	}
+
+	public List<Room> GetAllRooms()
+	{
+		return allRooms;
+	}
+
+	public List<Room> GetRoomsInUse()
+	{
+		return roomsInUse;
+	}
+/*
     [SerializeField] private Room[] rooms;
-	[SerializeField] private Toggle[] roomToggles;
-	[SerializeField] private Text currentHouseSizeText;
-	[SerializeField] private Text errorText;
-	[SerializeField] private Text maxHouseSizeText;
 
 	private int currentHouseSize = 0;
 	public static readonly int maxHouseSize = 6;
 	private int currentHouseRating = 0;
 	private int currentHouseCost = 0;
+	private List<Room> currentRooms;
 
 	void Awake () {
-		maxHouseSizeText.text = "Max Size: " + maxHouseSize.ToString();
-		ClearToggles();
+		SetupRoomToggles(1);
+		currentRooms = new List<Room>();
 	}
 
 	public int getHouseSize()
@@ -40,47 +76,70 @@ public class HouseManager : MonoBehaviour {
 	public void SaveButtonPressed()
 	{
 		UpdateCurrentSize ();
-		UpdateCurrentRating(GameManager.instance.ReadCurrentRooms());
+		//UpdateCurrentRating(GameManager.instance.ReadCurrentRooms());
+	}
+
+	public void SetupRoomToggles(int sizeToAdd)
+	{
+		int offset = 0;
+		VerticalLayoutGroup layoutGroup = roomListPanel.GetComponent<VerticalLayoutGroup>();
+		Text roomSizeText = Instantiate (textPrefab) as Text;
+		roomSizeText.transform.SetParent(roomListPanel.transform, false);
+		roomSizeText.transform.Translate(new Vector2(0, offset));
+		roomSizeText.text = "Size " + sizeToAdd + " rooms";
+		offset -= roomSizeText.fontSize - layoutGroup.padding.top - layoutGroup.padding.bottom;
+		for(int i = 0; i < rooms.Length; i++)
+		{
+			if(rooms[i].roomSize == sizeToAdd)
+			{
+				Toggle toggle = Instantiate (togglePrefab) as Toggle;
+				toggle.transform.SetParent(roomListPanel.transform, false);
+				toggle.transform.Translate(new Vector2(0, offset));
+				Text toggleText = toggle.GetComponentInChildren<Text>();
+				toggleText.text = rooms[i].roomName;
+				toggle.isOn = false;
+
+				offset -= toggleText.fontSize - layoutGroup.padding.top - layoutGroup.padding.bottom;
+			}
+		}
 	}
 
     public void Size1ButtonPressed()
     {
-        size1RoomsPanel.SetActive(true);
-        size2RoomsPanel.SetActive(false);
-        size3RoomsPanel.SetActive(false);
+		ClearRoomToggles();
+		SetupRoomToggles(1);
     }
 
     public void Size2ButtonPressed()
     {
-        size1RoomsPanel.SetActive(false);
-        size2RoomsPanel.SetActive(true);
-        size3RoomsPanel.SetActive(false);
+		ClearRoomToggles();
+		SetupRoomToggles(2);
     }
 
     public void Size3ButtonPressed()
     {
-        size1RoomsPanel.SetActive(false);
-        size2RoomsPanel.SetActive(false);
-        size3RoomsPanel.SetActive(true);
+		ClearRoomToggles();
+		SetupRoomToggles(3);
     }
 
-    private void ClearToggles()
+	public void ClearRoomToggles()
 	{
-		for (int i = 0; i < rooms.Length; i++) 
+		int count = roomListPanel.transform.childCount;
+		for(int i = 0; i < count; i++)
 		{
-			roomToggles [i].GetComponentInChildren<Toggle>().isOn = false;
+			GameObject.Destroy(roomListPanel.transform.GetChild(i).gameObject);
 		}
 	}
 
-	private void UpdateCurrentRooms()
+	private void UpdateGameManagerRooms()
 	{
         GameManager.instance.ClearRooms();
         for (int i = 0; i < rooms.Length; i++)
         {
-        	if (roomToggles[i].isOn)
-        	{
-        		GameManager.instance.AddRooms(rooms[i]);
-        	}
+        	// if (roomToggles[i].isOn)
+        	// {
+        	// 	GameManager.instance.AddRooms(rooms[i]);
+        	// }
         }
 
 	}
@@ -94,16 +153,17 @@ public class HouseManager : MonoBehaviour {
         int numRooms = 0;
 		for (int i = 0; i < rooms.Length; i++) 
 		{
-			if (roomToggles [i].isOn) 
+			if (roomToggles[i].isOn) 
 			{
 				currentHouseSize += rooms[i].roomSize;
 				currentHouseRating += rooms[i].roomRating;
-                GameManager.instance.AddRooms(rooms[i]);
-                numRooms++;
+            	GameManager.instance.AddRooms(rooms[i]);
+        		numRooms++;
 			}
 		}
 		if (currentHouseSize > maxHouseSize) 
 		{
+			Debug.Log(currentHouseSize);
 			errorText.enabled = true;
 			errorText.text = "Please reduce the size of your haunted house.";
 		} 
@@ -127,5 +187,5 @@ public class HouseManager : MonoBehaviour {
 		{
 			currentHouseRating += roomsInHouse[i].roomRating;
 		}
-	}
+	}*/
 }
