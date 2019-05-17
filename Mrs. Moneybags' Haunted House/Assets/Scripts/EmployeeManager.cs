@@ -15,12 +15,30 @@ public class EmployeeManager {
 
 	public void HireEmployee(Employee employeeToHire)
 	{
-		employedEmployees.Add(employeeToHire);
+		if(!employedEmployees.Contains(employeeToHire) && employees.Contains(employeeToHire))
+		{
+			employedEmployees.Add(employeeToHire);
+		}
+		else if(employedEmployees.Contains(employeeToHire))
+		{
+			throw new System.Exception("Employee already employed");
+		}
+		else if(!employees.Contains(employeeToHire))
+		{
+			throw new System.Exception("Employee not in list of available employees");
+		}
 	}
 
 	public void FireEmployee(Employee employeeToFire)
 	{
-		employedEmployees.Remove(employeeToFire);
+		if(employedEmployees.Contains(employeeToFire))
+		{
+			employedEmployees.Remove(employeeToFire);
+		}
+		else
+		{
+			throw new System.Exception("Employee not employed");
+		}
 	}
 
 	public List<Employee> GetAllEmployees()
@@ -28,7 +46,7 @@ public class EmployeeManager {
 		return employees;
 	}
 
-	public List<Employee> GetEmployedEmployees()
+	public List<Employee> GetHiredEmployees()
 	{
 		return employedEmployees;
 	}

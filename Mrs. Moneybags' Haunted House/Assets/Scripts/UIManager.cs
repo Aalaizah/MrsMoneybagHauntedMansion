@@ -33,24 +33,26 @@ public class UIManager : MonoBehaviour {
 	private int currentHouseRating = 0;
 	private int currentHouseCost = 0;
 	private int employeeCost = 0;
-	private bool toHireScreen;
+	private bool toHireScreenIsShown;
+	private int currentSizePanel = 1;
 
 	void Awake () {
 		employeeManager = new EmployeeManager(theEmployees);
 		houseManager = new HouseManager(theRooms);
-		toHireScreen = true;
+		toHireScreenIsShown = false;
 		currentlySelectedToFireEmployees = new List<Employee>();
 		currentlySelectedToHireEmployees = new List<Employee>();
 		currentlySelectedRooms = new List<Room>();
 		currentToggles = new List<Toggle>();
 		currentToggleEmployees = new List<Employee>();
 		currentToggleRooms = new List<Room>();
-		SetupEmployeeToggles(true);
+		//SetupEmployeeToggles(true);
+		SetupRoomToggles(currentSizePanel);
 	}
 
 	private void CalculateEmployeeCost()
 	{
-		List<Employee> currentlyEmployed = employeeManager.GetEmployedEmployees();
+		List<Employee> currentlyEmployed = employeeManager.GetHiredEmployees();
 		employeeCost = 0;
 		for(int i = 0; i < currentlyEmployed.Count; i++)
 		{
@@ -58,11 +60,11 @@ public class UIManager : MonoBehaviour {
 		}
 		GameManager.instance.SetHouseCost(employeeCost);
 	}
-
+	
 	private void SetupEmployeeToggles(bool toHire)
 	{
 		int offset = 0;
-		List<Employee> currentlyEmployed = employeeManager.GetEmployedEmployees();
+		List<Employee> currentlyEmployed = employeeManager.GetHiredEmployees();
 		if(!toHire)
 		{
 			infoText.text = "Select Employees To Fire";
@@ -111,6 +113,25 @@ public class UIManager : MonoBehaviour {
 
 	public void HideButtonPressed()
 	{
+		List<Room> currentRooms = houseManager.GetRoomsInUse();
+		for(int i = 0; i < currentRooms.Count; i++)
+		{
+			//Debug.Log(currentRooms[i]);
+		}
+		List<Employee> currentEmployees = employeeManager.GetHiredEmployees();
+		for(int i = 0; i < currentEmployees.Count; i++)
+		{
+			Debug.Log(currentEmployees[i]);
+		}
+		for(int i = 0; i < currentlySelectedRooms.Count; i++)
+		{
+			if(!currentRooms.Contains(currentlySelectedRooms[i]))
+			{
+				houseManager.AddRoom(currentlySelectedRooms[i]);
+				GameManager.instance.AddRoom(currentlySelectedRooms[i]);
+			}
+			Debug.Log("Room Added: " + currentlySelectedRooms[i].roomName);
+		}
 		houseUpdatePanel.SetActive (false);
 		gameUIPanel.SetActive (true);
 		GameManager.instance.SetInstructionTextEnabled(false);
@@ -126,7 +147,7 @@ public class UIManager : MonoBehaviour {
 	{
 		roomUpdatePanel.SetActive(!roomUpdatePanel.activeSelf);
 		employeeUpdatePanel.SetActive(!employeeUpdatePanel.activeSelf);
-		if(toHireScreen)
+		if(toHireScreenIsShown)
 		{
 			AddToSelectedEmployeeList(currentlySelectedToHireEmployees);
 			fireHireButton.GetComponentInChildren<Text>().text = "Hire";
@@ -144,15 +165,17 @@ public class UIManager : MonoBehaviour {
 	// TODO Update for house/room info
 	public void SaveButtonPressed()
 	{
-		if(!toHireScreen && currentlySelectedToHireEmployees.Count > 0)
+		if(!toHireScreenIsShown && currentlySelectedToHireEmployees.Count > 0)
 		{
 			AddToSelectedEmployeeList(currentlySelectedToHireEmployees);
 			fireHireButton.GetComponentInChildren<Text>().text = "Fire";
+			SetupEmployeeToggles(toHireScreenIsShown);
 		}
-		else if(toHireScreen && currentlySelectedToFireEmployees.Count > 0)
+		else if(toHireScreenIsShown && currentlySelectedToFireEmployees.Count > 0)
 		{
 			AddToSelectedEmployeeList(currentlySelectedToFireEmployees);
 			fireHireButton.GetComponentInChildren<Text>().text = "Hire";
+			SetupEmployeeToggles(toHireScreenIsShown);
 		}
 		for(int i = 0; i < currentlySelectedToHireEmployees.Count; i++)
 		{
@@ -164,21 +187,17 @@ public class UIManager : MonoBehaviour {
 			employeeManager.FireEmployee(currentlySelectedToFireEmployees[i]);
 			Debug.Log("Fired: " + currentlySelectedToFireEmployees[i].employeeName);
 		}
-		for(int i = 0; i < currentlySelectedRooms.Count; i++)
-		{
-			houseManager.AddRoom(currentlySelectedRooms[i]);
-			Debug.Log("Room Added: " + currentlySelectedRooms[i].roomName);
-		}
-		SetupEmployeeToggles(toHireScreen);
+		AddToSelectedHouseList();
 		ClearToggles(employeePanel);
 		ClearToggles(roomPanel);
+		SetupRoomToggles(currentSizePanel);
 		CalculateEmployeeCost();
-		GameManager.instance.SetRoomLocations();
+		//GameManager.instance.SetRoomLocations();
 	}
 
 	public void FireHireButtonPressed()
 	{
-		if(toHireScreen)
+		if(toHireScreenIsShown)
 		{
 			AddToSelectedEmployeeList(currentlySelectedToHireEmployees);
 			fireHireButton.GetComponentInChildren<Text>().text = "Fire";
@@ -189,12 +208,13 @@ public class UIManager : MonoBehaviour {
 			fireHireButton.GetComponentInChildren<Text>().text = "Hire";
 		}
 		ClearToggles(employeePanel);
-		toHireScreen = !toHireScreen;
-		SetupEmployeeToggles(toHireScreen);
+		toHireScreenIsShown = !toHireScreenIsShown;
+		SetupEmployeeToggles(toHireScreenIsShown);
 	}
 
 	private void AddToSelectedEmployeeList(List<Employee> listToAddTo)
 	{
+		Debug.Log("toggles count: " + currentToggles.Count);
 		for(int i = 0; i <= currentToggles.Count - 1; i++)
 		{
 			Toggle currentToggle = currentToggles[i];
@@ -208,7 +228,6 @@ public class UIManager : MonoBehaviour {
 	}
 
 	private void ClearToggles(GameObject panel) {
-		Debug.Log("Panel: " + panel.name);
 		int count = panel.transform.childCount;
 		for(int i = count - 1; i >= 0; i--) {
 			GameObject.Destroy (panel.transform.GetChild(i).gameObject);
@@ -226,6 +245,7 @@ public class UIManager : MonoBehaviour {
 
 	private void SetupRoomToggles(int sizeToAdd)
 	{
+		ClearToggles(roomPanel);
 		int offset = 0;
 		VerticalLayoutGroup layoutGroup = roomPanel.GetComponent<VerticalLayoutGroup>();
 		//Text roomSizeText = Instantiate (textPrefab) as Text;
@@ -233,6 +253,7 @@ public class UIManager : MonoBehaviour {
 		//roomSizeText.transform.Translate(new Vector2(0, offset));
 		//roomSizeText.text = "Size " + sizeToAdd + " rooms";
 		//offset -= roomSizeText.fontSize - layoutGroup.padding.top - layoutGroup.padding.bottom;
+		currentToggles.Clear();
 		for(int i = 0; i < theRooms.Count; i++)
 		{
 			if(theRooms[i].roomSize == sizeToAdd)
@@ -242,7 +263,14 @@ public class UIManager : MonoBehaviour {
 				toggle.transform.Translate(new Vector2(0, offset));
 				Text toggleText = toggle.GetComponentInChildren<Text>();
 				toggleText.text = theRooms[i].roomName;
-				toggle.isOn = false;
+				if(currentlySelectedRooms.Contains(theRooms[i]))
+				{
+					toggle.isOn = true;
+				}
+				else
+				{
+					toggle.isOn = false;
+				}
 
 				currentToggles.Add(toggle);
 				currentToggleRooms.Add(theRooms[i]);
@@ -252,42 +280,39 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 
-
 	public void Size1ButtonPressed()
 	{
+		currentSizePanel = 1;
 		AddToSelectedHouseList();
-		ClearToggles(roomPanel);
-		SetupRoomToggles(1);
 	}
 
 	public void Size2ButtonPressed()
 	{
+		currentSizePanel = 2;
 		AddToSelectedHouseList();
-		ClearToggles(roomPanel);
-		SetupRoomToggles(2);
 	}
 
 	public void Size3ButtonPressed()
 	{
+		currentSizePanel = 3;
 		AddToSelectedHouseList();
-		ClearToggles(roomPanel);
-		SetupRoomToggles(3);
 	}
 
 	private void AddToSelectedHouseList()
 	{
-		for(int i = 0; i <= currentToggles.Count - 1; i++)
+		for(int i = 0; i < currentToggles.Count; i++)
 		{
-			Debug.Log(currentToggleRooms.Count);
-			Debug.Log(currentToggleRooms[i]);
 			Toggle currentToggle = currentToggles[i];
 			Room room = currentToggleRooms[i];
 			if(currentToggle.isOn && !currentlySelectedRooms.Contains(room))
 			{
 				currentlySelectedRooms.Add(room);
 			}
+			else if(!currentToggle.isOn && currentlySelectedRooms.Contains(room))
+			{
+				currentlySelectedRooms.Remove(room);
+			}
 		}
-		currentToggles.Clear();
-		currentToggleRooms.Clear();
+		SetupRoomToggles(currentSizePanel);
 	}
 }

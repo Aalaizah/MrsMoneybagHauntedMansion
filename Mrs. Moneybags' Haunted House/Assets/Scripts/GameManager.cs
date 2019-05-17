@@ -6,6 +6,7 @@ using System;
 
 public class GameManager : MonoBehaviour {
 
+    // TODO: what in here can be moved to UI Manager?
 	public Text houseRatingText;
 	public Text currentMoneyText;
 	public static GameManager instance = null;
@@ -51,7 +52,6 @@ public class GameManager : MonoBehaviour {
 
     }
 
-	// Use this for initialization
 	void Start () {
 		currentMoneyText.text = "$" + currentMoney.ToString();
 		houseRatingText.text = "Haunted House Rating: " + houseRating.ToString();
@@ -91,8 +91,9 @@ public class GameManager : MonoBehaviour {
         return currentRooms;
     }
 
-    public void AddRooms(Room room)
+    public void AddRoom(Room room)
     {
+        Debug.Log("Room added to game manager");
         currentRooms.Add(room);
     }
 
@@ -103,6 +104,7 @@ public class GameManager : MonoBehaviour {
 
     public void SetRoomLocations()
     {
+        Debug.Log("Rooms being setup");
         DisableRooms(size1Panels);
         DisableRooms(size2Panels);
         DisableRooms(size3Panels);
@@ -115,6 +117,7 @@ public class GameManager : MonoBehaviour {
         nextSize2ToActivate = 0;
         nextSize3ToActivate = 0;
 
+        Debug.Log("currentRooms count: " + currentRooms.Count);
         GetSizeRoomCounts(currentRooms);
         nextSize2ToActivate += (numSize3Active * 2);
         nextSize1ToActivate += Convert.ToInt32(numSize2Active * 1.5) + (numSize3Active * 3); // 1.5 for size 6 house TODO clean up for other sizes
@@ -125,9 +128,12 @@ public class GameManager : MonoBehaviour {
 
     private void ActivateRooms(GameObject[] panelsArray, List<Room> listToActivateRoomsFrom, int locationToStartActivating, int numPanelsActive)
     {
+        Debug.Log("Location to start activating: " + locationToStartActivating);
+        Debug.Log("numPanelsActivated: " + numPanelsActive);
     	int imageLoc = 0;
     	for(int i = locationToStartActivating; i < (locationToStartActivating + numPanelsActive); i++)
     	{
+            Debug.Log("Room image being added: " + listToActivateRoomsFrom[imageLoc].roomName);
     		panelsArray[i].GetComponent<Image>().sprite = listToActivateRoomsFrom[imageLoc].roomImage;
     		panelsArray[i].SetActive(true);
     		imageLoc++;
@@ -157,6 +163,7 @@ public class GameManager : MonoBehaviour {
             switch (room.roomSize)
             {
                 case 1:
+                    Debug.Log("size 1 room added to count");
                     size1RoomsToActivate.Add(room);
                     numSize1Active++;
                     break;

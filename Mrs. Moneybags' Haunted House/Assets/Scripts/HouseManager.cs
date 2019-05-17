@@ -15,17 +15,21 @@ public class HouseManager {
 
 	public void AddRoom(Room roomToAdd)
 	{
-		if(!roomsInUse.Contains(roomToAdd))
+		if(!roomsInUse.Contains(roomToAdd) && allRooms.Contains(roomToAdd))
 		{
 			roomsInUse.Add(roomToAdd);
 		}
-		else
+		else if(roomsInUse.Contains(roomToAdd))
 		{
-			Debug.Log("Room already in list");
+			throw new System.Exception("Room already in list");
+		}
+		else if(!allRooms.Contains(roomToAdd))
+		{
+			throw new System.Exception("Room not available to Add");
 		}
 	}
 
-	public void RemoveRoome(Room roomToRemove)
+	public void RemoveRoom(Room roomToRemove)
 	{
 		if(roomsInUse.Contains(roomToRemove))
 		{
@@ -33,7 +37,7 @@ public class HouseManager {
 		}
 		else
 		{
-			Debug.Log("Room not in list");
+			throw new System.Exception("Room not currently in use");
 		}
 	}
 
